@@ -1,0 +1,12 @@
+---
+name: Graph-Dependency
+version: 0.01
+version_from: lib/Graph/Dependency.pm
+license: gpl
+distribution_type: module
+generated_by: Graph-Dependency version 0.01
+installdirs: site
+requires:
+  Graph::Easy: 0.39
+  Module::CoreList: 2.02
+  YAML: 0
