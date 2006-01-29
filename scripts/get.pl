@@ -11,6 +11,9 @@ die ("Need author name") unless $author;
 # turn "Foo::Bar" into "Foo-Bar"
 $module =~ s/::/-/g;
 
+# protect against random data
+$module =~ s/[^\w\d\._+-]//g;
+
 # the first one will redirect to the second one
 my $url = "http://search.cpan.org/~$author/$module/META.yml";
 

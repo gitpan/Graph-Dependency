@@ -36,17 +36,33 @@ while (@TODO)
 
   print "At $m, still todo: ", scalar @TODO, "\n";
 
-  $graph->add_node($m);		# need at least once :)
-
   # don't do module twice
   next if exists $DONE{$m};
   $DONE{$m} = undef;
 
   my $file = "tmp/$m-META.yml";
 
-  # get the file unless it exists;
-  `perl scripts/get_meta.pl '$m'` unless -f $file;
+  my $node = $graph->add_node($m);		# need at least once :)
 
+  my $m_org = $m;
+  # get the file unless it exists;
+  if (!-f $file)
+    {
+    my $rc = `perl scripts/get_meta.pl '$m'` unless -f $file;
+
+    die ("Didn't get proper result from get_meta") unless
+      $rc =~ /author '([^']*)'.*module '([^']+)'/;
+    print "  $m is part of $2 from author $1.\n";
+    $m = $2;
+    $DONE{$m} = undef;
+    }
+
+  if ($m ne $m_org)
+    {
+    $node->set_attribute('label', "$m_org\\n ($m)");
+    }
+
+  $file = "tmp/$m-META.yml";
   die ("Error: Couldn't find $file: $!") unless -f $file;
 
   my $yaml = YAML::LoadFile($file);
@@ -69,7 +85,9 @@ while (@TODO)
     my $d = 'Todo'; $d = 'Done' if $DONE{$p};
 
     print "   $d: Prereq: $p\n";
-    my ($A, $B, $E) = $graph->add_edge($m, $p);
+    my ($A, $B, $E) = $graph->add_edge($node, $p);
+
+    $E->set_attribute('start', 'front,0');
 
     $todo{$p} = undef unless $DONE{$p};		# mark as todo
     }
@@ -90,10 +108,6 @@ for my $node ($graph->nodes())
   if (defined $release)
     {
     $node->set_attribute('class', 'core');
-    print "$name is in core\n";
-    }
-  else
-    {
     }
   }
 
@@ -133,8 +147,8 @@ sub _generate
     }
   else
     {
-    open FILE, $f or die ("Cannot write to '$f': $!");
-    my $method = 'as_' . $output;
+    open FILE, ">$f" or die ("Cannot write to '$f': $!");
+    my $method = 'as_' . $output . '_file';
 
     print FILE $graph->$method();
     close FILE;

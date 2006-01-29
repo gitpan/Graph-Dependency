@@ -53,7 +53,7 @@ WriteMakefile(
     NAME		=> 'Graph::Dependency',
     VERSION_FROM	=> 'lib/Graph/Dependency.pm', # finds $VERSION
     PREREQ_PM		=> {
-	"Graph::Easy" => 0.39,
+	"Graph::Easy" => 0.40,
 	"Module::CoreList" => 2.02,
 	"YAML" => 0,
 	},
